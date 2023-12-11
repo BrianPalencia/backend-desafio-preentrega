@@ -1,4 +1,4 @@
-import utils from "./utils.js";
+import utils from "../utils.js";
 import crypto from "crypto";
 
 export class ProductManager {
@@ -7,7 +7,6 @@ export class ProductManager {
         this.products = [];
     }
     async addProduct(title, description, price, thumbnail, code, stock) {
-        //id: this.products.length +1,
 
         if (
             title == undefined ||
@@ -21,7 +20,6 @@ export class ProductManager {
         }
         try {
             let data = await utils.readFile(this.path);
-            console.log(data);
             this.products = data?.length > 0 ? data : [];
         } catch (error) {
             console.log(error);
@@ -42,14 +40,12 @@ export class ProductManager {
                 stock,
             };
             this.products.push(newProduct);
-            console.log(this.products.length);
             try {
                 await utils.writeFile(this.path, this.products);
             } catch (error) {
                 console.log(error);
             }
         }
-
     }
     async getProducts() {
         try {

@@ -1,8 +1,11 @@
 import { ProductManager } from "./ProductManager.js";
 
 let miPrimeraTienda = new ProductManager("./products.json");
+miPrimeraTienda.getProducts().then((data) => {
+    console.log(data);
+});
 
-miPrimeraTienda.addProduct(
+/*miPrimeraTienda.addProduct(
     "Cereal",
     "Cereal de arroz",
     200,
@@ -25,4 +28,4 @@ miPrimeraTienda.addProduct(
     "sin imagen",
     "003",
     10
-);
+); */
