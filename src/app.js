@@ -1,5 +1,7 @@
 import express from "express";
 import { Server } from "socket.io";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
 import productRouter from "./routes/products.router.js";
 import cartRouter from "./routes/cart.router.js";
 import handlebars from "express-handlebars";
@@ -7,9 +9,13 @@ import viewsRouter from "./routes/views.router.js";
 import { __dirname } from "./utils.js";
 import { ProductManager } from "./classes/ProductManager.js";
 
+dotenv.config();
+
 const app = express();
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 const productManager = new ProductManager("productos.json");
+
+const DB_URL = process.env.DB_URL || "mongodb://127.0.0.1:27017/ecommerce";
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -25,8 +31,14 @@ app.use("/api/cart", cartRouter);
 app.use("/", viewsRouter);
 
 const server = app.listen(PORT, () => {
-    console.log("servidor esta running en el puerto" + PORT);
+    console.log("servidor esta running en el puerto " + PORT);
 });
+
+mongoose
+    .connect(DB_URL)
+    .then(() => {
+        console.log("Base de datos conectada a " + DB_URL);
+    })
 
 const socketServer = new Server(server);
 
