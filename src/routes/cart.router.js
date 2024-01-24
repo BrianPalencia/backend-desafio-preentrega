@@ -6,10 +6,10 @@ const cartManager = new CartManager("carts.json");
 
 router.get("/", async (req, res) => {
     try {
-        let response = await cartManager.getCarts();
+        let response = await cartManager.find();
         res.json({ data: response });
     } catch (err) {
-        console.log(err);
+        res.status(500).json({ status: 'error', error: 'Internal error' });
     }
 });
 
@@ -19,28 +19,38 @@ router.get("/:cid", async (req, res) => {
         const respuesta = await cartManager.getCartById(cid);
         res.json({ data: respuesta });
     } catch (err) {
-        console.log(err);
+        res.status(500).json({ status: 'error', error: 'Internal error' });
     }
 });
-router.post("/", async (req, res) => {
+router.post("/:cid/product/:pid'", async (req, res) => {
     try {
-        const response = await cartManager.addCart();
-        res.json({ message: "success", data: response });
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({ message: "error", data: err });
+        const { cid, pid } = req.params
+        const result = await cartManager.updateOne({ _id: cid }, { $push: { products: { product: pid } } })
+        res.json({ message: result })
+    } catch (error) {
+        res.status(500).json({ status: 'error', error: 'Internal error' });
     }
 });
 
-router.post("/:cid/products/:pid", async (req, res) => {
-    const { cid, pid } = req.params;
+router.put('/:cid/product/:pid', async (req, res) => {
     try {
-        const response = await cartManager.addProductToCart(cid, pid);
-        res.json({ message: "success", data: response });
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({ message: "error", data: err });
+        const { cid, pid } = req.params
+        const { qty } = req.body
+        const result = await cartsManager.updateOne({ _id: cid, }, { $set: { 'products.$.quantity': qty }})
+        res.json({ message: result })
+    } catch (error) {
+        res.status(500).json({ status: 'error', error: 'Internal error' });
     }
 });
+
+router.delete('/:cid/product/:pid', async (req, res) => {
+    try {
+        const { cid, pid } = req.params
+        const result = await cartsManager.deleteOne({ _id: cid }, { $pull: { products: { product: pid }}})
+        res.json({ message: result })
+    } catch (error) {
+        res.status(500).json({ status: 'error', error: 'Internal error' });
+    }
+})
 
 export default router;

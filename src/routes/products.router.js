@@ -5,7 +5,7 @@ const router = Router();
 const productManager = new ProductManager("productos.json");
 
 router.get("/", async (req, res) => {
-    const { limit } = req.query;
+    const { limit, page, query, sort } = req.query;
     try {
         let response = await productManager.getProducts();
         if (limit) {

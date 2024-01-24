@@ -31,7 +31,7 @@ app.use("/api/cart", cartRouter);
 app.use("/", viewsRouter);
 
 const server = app.listen(PORT, () => {
-    console.log("servidor esta running en el puerto " + PORT);
+    console.log("servidor esta corriendo en el puerto " + PORT);
 });
 
 mongoose

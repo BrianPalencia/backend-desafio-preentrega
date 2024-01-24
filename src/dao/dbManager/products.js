@@ -1,4 +1,4 @@
-import { productsModel } from "../models/products.js";
+import { productsModel } from "../mongodb/models/products.models.js";
 
 export default class ProductsManager {
     constructor() {
