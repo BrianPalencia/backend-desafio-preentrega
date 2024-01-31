@@ -8,12 +8,21 @@ import handlebars from "express-handlebars";
 import viewsRouter from "./routes/views.router.js";
 import { __dirname } from "./utils.js";
 import { ProductManager } from "./classes/ProductManager.js";
+import MongoStore from "connect-mongo";
+import session from "express-session";
+import cookieParser from "cookie-parser";
+import passport from "passport";
+import initializePassport from "./config/passport.config.js";
+import loginRouter from "./routes/login.router.js";
+import signupRouter from "./routes/signup.router.js";
+import sessionRouter from "./routes/session.router.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 const productManager = new ProductManager("productos.json");
+const COOKIESECRET = process.env.CODERSECRET;
 
 const DB_URL = process.env.DB_URL || "mongodb://127.0.0.1:27017/ecommerce";
 
@@ -39,6 +48,49 @@ mongoose
     .then(() => {
         console.log("Base de datos conectada a " + DB_URL);
     })
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser(COOKIESECRET));
+app.use(express.static(__dirname + "/public"));
+
+app.engine("handlebars", handlebars.engine());
+app.set("views", __dirname + "/views");
+app.set("view engine", "handlebars");
+
+app.use(
+    session({
+        store: MongoStore.create({
+            mongoUrl: DB_URL,
+            mongoOptions: {
+                useNewUrlParser: true,
+            },
+            ttl: 600,
+        }),
+        secret: COOKIESECRET,
+        resave: false,
+        saveUninitialized: true,
+    })
+);
+
+initializePassport();
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use("/", sessionRouter);
+app.use("/login", loginRouter);
+app.use("/signup", signupRouter);
+const environment = async () => {
+    try {
+        await mongoose.connect(DB_URL);
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+environment();
+
+server.on("error", (error) => console.log(error));
 
 const socketServer = new Server(server);
 
